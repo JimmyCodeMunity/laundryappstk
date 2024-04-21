@@ -21,8 +21,6 @@ app.use('/', apiRouter);
 
 const server = http.createServer(app);
 
-app.use(bodyParser.json());
-
 
 //database link
 const db = "mongodb+srv://devjimin02:Ghostbmer02@mpesatest.975rrc8.mongodb.net/?retryWrites=true&w=majority&appName=mpesatest";
@@ -258,25 +256,18 @@ app.post('/callbackreq', (req, res) => {
 
   console.log({phone,amount,trnx_id});
 
-  const payment = Payment.create(
-    {
-      phone,
-      amount,
-      trnx_id
-    }
-  );
-  res.status(200).json(payment)
+  const payment = new Payment();
 
-  // payment.number = phone;
-  // payment.amount = amount;
-  // payment.trnx_id = trnx_id;
+  payment.number = phone;
+  payment.amount = amount;
+  payment.trnx_id = trnx_id;
 
-  // payment.save().then((data)=>{
-  //   console.log(data);
-  //   console.log('data saved')
-  // }).catch((err)=>{
-  //   console.log(err.message)
-  // })
+  payment.save().then((data)=>{
+    console.log(data);
+    console.log('data saved')
+  }).catch((err)=>{
+    console.log(err.message)
+  })
   
   
 })
