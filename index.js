@@ -59,10 +59,12 @@ app.get("/access_token", (req, res) => {
 });
 
 //MPESA STK PUSH ROUTE
-app.get("/stkpush", (req, res) => {
+app.post("/stkpush", (req, res) => {
   getAccessToken()
     .then((accessToken) => {
       const {phoneNumber,Amount} = req.body;
+      console.log(phoneNumber)
+      // return;
       // const phoneNumber = 254791072861;
       // const Amount = 20;
       const url =
@@ -87,7 +89,7 @@ app.get("/stkpush", (req, res) => {
             PartyA: phoneNumber,
             PartyB: "174379",
             PhoneNumber: phoneNumber,
-            CallBackURL: "https://morning-basin-87523.herokuapp.com/callback_url.php",
+            CallBackURL: "https://4bdd-102-219-208-66.ngrok-free.app/callbackreq",
             AccountReference: "Laundro",
             TransactionDesc: "Laundry API stk push test",
           },
@@ -99,6 +101,7 @@ app.get("/stkpush", (req, res) => {
         )
         .then((response) => {
           res.send("😀 Request is successful done ✔✔. Please enter mpesa pin to complete the transaction");
+          console.log(response.data.CheckoutRequestID);
         })
         .catch((error) => {
           console.log(error);
@@ -177,6 +180,11 @@ app.get("/confirmation", (req, res) => {
   console.log("All transaction will be sent to this URL");
   console.log(req.body);
 });
+
+
+app.post('/callbackreq',(req,res)=>{
+  console.log(req.body);
+})
 
 app.get("/validation", (req, resp) => {
   console.log("Validating payment");
