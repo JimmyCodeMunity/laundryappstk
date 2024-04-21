@@ -258,7 +258,7 @@ app.post('/callbackreq', (req, res) => {
 
   const payment = new Payment();
 
-  payment.number = number;
+  payment.number = phone;
   payment.amount = amount;
   payment.trnx_id = trnx_id;
 
