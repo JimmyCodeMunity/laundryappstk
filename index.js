@@ -91,7 +91,7 @@ app.post("/stkpush", (req, res) => {
             PhoneNumber: phoneNumber,
             CallBackURL: "https://laundryappstk.vercel.app/callbackreq",
             AccountReference: "Laundro",
-            TransactionDesc: "Laundry API stk push test",
+            TransactionDesc: "Laundry API stk push",
           },
           {
             headers: {
