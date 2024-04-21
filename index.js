@@ -7,6 +7,7 @@ const moment = require("moment");
 const apiRouter = require('./api');
 const cors = require("cors");
 const mongoose = require("mongoose");
+const Payment = require("./models/paymentModel");
 
 
 const port = 5000;
@@ -254,6 +255,19 @@ app.post('/callbackreq', (req, res) => {
   const trnx_id = callbackData.Body.stkCallback.CallbackMetadata.Item[3].Value;
 
   console.log({phone,amount,trnx_id});
+
+  const payment = new Payment();
+
+  payment.number = number;
+  payment.amount = amount;
+  payment.trnx_id = trnx_id;
+
+  payment.save().then((data)=>{
+    console.log(data);
+    console.log('data saved')
+  }).catch((err)=>{
+    console.log(err.message)
+  })
   
   
 })
