@@ -89,7 +89,7 @@ app.post("/stkpush", (req, res) => {
             PartyA: phoneNumber,
             PartyB: "174379",
             PhoneNumber: phoneNumber,
-            CallBackURL: "https://4bdd-102-219-208-66.ngrok-free.app/callbackreq",
+            CallBackURL: "https://laundryappstk.vercel.app/callbackreq",
             AccountReference: "Laundro",
             TransactionDesc: "Laundry API stk push test",
           },
