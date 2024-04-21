@@ -6,6 +6,7 @@ const axios = require("axios"); // Import 'axios' instead of 'request'
 const moment = require("moment");
 const apiRouter = require('./api');
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 
 const port = 5000;
@@ -18,6 +19,10 @@ app.use(cors());
 app.use('/', apiRouter);
 
 const server = http.createServer(app);
+
+
+//database link
+const db = "mongodb+srv://devjimin02:Ghostbmer02@mpesatest.975rrc8.mongodb.net/?retryWrites=true&w=majority&appName=mpesatest";
 
 // ACCESS TOKEN FUNCTION - Updated to use 'axios'
 async function getAccessToken() {
@@ -63,7 +68,7 @@ app.get("/access_token", (req, res) => {
 //   getAccessToken()
 //     .then((accessToken) => {
 //       const {phoneNumber,Amount} = req.body;
-      
+
 //       console.log(phoneNumber)
 //       // return;
 //       // const phoneNumber = 254791072861;
@@ -116,7 +121,7 @@ app.post("/stkpush", (req, res) => {
     .then((accessToken) => {
       const { phoneNumber, Amount } = req.body;
 
-      
+
 
       const url =
         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
@@ -196,36 +201,36 @@ app.post("/stkpush", (req, res) => {
 // });
 
 
-app.get('/registerurl', (req,resp)=>{
+app.get('/registerurl', (req, resp) => {
   getAccessToken()
-  .then((accessToken)=>{
-    let url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl";
-    let auth = "Bearer " + accessToken;
+    .then((accessToken) => {
+      let url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl";
+      let auth = "Bearer " + accessToken;
 
-    request(
-      {
-        url:url,
-        method:"POST",
-        headers:{
-          Authorization:auth
+      request(
+        {
+          url: url,
+          method: "POST",
+          headers: {
+            Authorization: auth
+          },
+          json: {
+            ShortCode: "174379",
+            ResponseType: "Complete",
+            ConfirmationURL: "http://example.com/confirmation",
+            ValidationURL: "http://example.com/validation"
+          },
         },
-        json:{
-          ShortCode:"174379",
-          ResponseType:"Complete",
-          ConfirmationURL:"http://example.com/confirmation",
-          ValidationURL:"http://example.com/validation"
-        },
-      },
 
-      function(error,response,body){
-        if(error){
-          console.log(error);
+        function (error, response, body) {
+          if (error) {
+            console.log(error);
+          }
+          resp.status(200).json(body);
         }
-        resp.status(200).json(body);
-      }
-    );
-  })
-  .catch(console.log);
+      );
+    })
+    .catch(console.log);
 });
 
 app.get("/confirmation", (req, res) => {
@@ -234,15 +239,23 @@ app.get("/confirmation", (req, res) => {
 });
 
 
-app.post('/callbackreq',(req,res)=>{
+app.post('/callbackreq', (req, res) => {
   const callbackData = req.body;
-  console.log("callback data:",callbackData.Body)
-  if(!callbackData.Body.stkCallback.CallbackMetadata){
+  console.log("callback data:", callbackData.Body)
+  if (!callbackData.Body.stkCallback.CallbackMetadata) {
     console.log(callbackData.Body)
     return res.json("ok")
   }
 
   console.log(callbackData.Body.stkCallback.CallbackMetadata);
+
+  const phone = callbackData.Body.stkCallback.CallbackMetadata.Item[4].Value;
+  const amount = callbackData.Body.stkCallback.CallbackMetadata.Item[0].Value;
+  const trnx_id = callbackData.Body.stkCallback.CallbackMetadata.Item[3].Value;
+
+  console.log({phone,amount,trnx_id});
+  
+  
 })
 
 app.get("/validation", (req, resp) => {
@@ -289,6 +302,15 @@ app.get("/b2curlrequest", (req, res) => {
     })
     .catch(console.log);
 });
+
+
+
+mongoose.connect(db).then(() => {
+  console.log("db connected");
+}).catch((err) => {
+  console.log(err);
+  console.log("dbconnection failed")
+})
 
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
