@@ -140,7 +140,7 @@ app.post("/stkpush", (req, res) => {
             PartyA: `254${phoneNumber}`,
             PartyB: "174379",
             PhoneNumber: `254${phoneNumber}`,
-            CallBackURL: "https://a551-102-219-208-66.ngrok-free.app/callbackreq",
+            CallBackURL: "https://laundryappstk.vercel.app/callbackreq",
             AccountReference: "Laundro",
             TransactionDesc: "Laundry API stk push",
           },
@@ -237,12 +237,12 @@ app.get("/confirmation", (req, res) => {
 app.post('/callbackreq',(req,res)=>{
   const callbackData = req.body;
   console.log("callback data:",callbackData.Body)
-  if(!callbackData.Body.CallbackMetadata){
+  if(!callbackData.Body.stkCallback.CallbackMetadata){
     console.log(callbackData.Body)
     return res.json("ok")
   }
 
-  console.log(callbackData.Body.CallbackMetadata);
+  console.log(callbackData.Body.stkCallback.CallbackMetadata);
 })
 
 app.get("/validation", (req, resp) => {
