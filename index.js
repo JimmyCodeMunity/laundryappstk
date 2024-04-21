@@ -242,71 +242,44 @@ app.get("/confirmation", (req, res) => {
 });
 
 
-// app.post('/callbackreq', (req, res) => {
-//   const callbackData = req.body;
-//   console.log("callback data:", callbackData.Body)
-//   if (!callbackData.Body.stkCallback.CallbackMetadata) {
-//     console.log(callbackData.Body)
-//     return res.json("ok")
-//   }
-
-//   console.log(callbackData.Body.stkCallback.CallbackMetadata);
-
-//   const phone = callbackData.Body.stkCallback.CallbackMetadata.Item[4].Value;
-//   const amount = callbackData.Body.stkCallback.CallbackMetadata.Item[0].Value;
-//   const trnx_id = callbackData.Body.stkCallback.CallbackMetadata.Item[3].Value;
-
-//   console.log({phone,amount,trnx_id});
-
-//   const payment = new Payment();
-
-//   payment.number = phone;
-//   payment.amount = amount;
-//   payment.trnx_id = trnx_id;
-
-//   payment.save().then((data)=>{
-//     console.log(data);
-//     console.log('data saved')
-//   }).catch((err)=>{
-//     console.log(err.message)
-//   })
-  
-  
-// })
-
 app.post('/callbackreq', (req, res) => {
   const callbackData = req.body;
-  console.log("callback data:", callbackData);
-
-  if (!callbackData.Body || !callbackData.Body.stkCallback || !callbackData.Body.stkCallback.CallbackMetadata) {
-    console.log("Invalid callback data:", callbackData);
-    return res.status(400).json({ error: "Invalid callback data" });
+  console.log("callback data:", callbackData.Body)
+  if (!callbackData.Body.stkCallback.CallbackMetadata) {
+    console.log(callbackData.Body)
+    return res.json("ok")
   }
 
-  const metadata = callbackData.Body.stkCallback.CallbackMetadata.Item;
+  console.log(callbackData.Body.stkCallback.CallbackMetadata);
 
-  const phone = metadata.find(item => item.Name === "PhoneNumber").Value;
-  const amount = metadata.find(item => item.Name === "Amount").Value;
-  const trnx_id = metadata.find(item => item.Name === "TransactionID").Value;
+  const phone = callbackData.Body.stkCallback.CallbackMetadata.Item[4].Value;
+  const amount = callbackData.Body.stkCallback.CallbackMetadata.Item[0].Value;
+  const trnx_id = callbackData.Body.stkCallback.CallbackMetadata.Item[3].Value;
 
-  console.log({phone, amount, trnx_id});
+  console.log({phone,amount,trnx_id});
 
-  const payment = new Payment({
-    number: phone,
-    amount: amount,
-    trnx_id: trnx_id
-  });
+  const payment = Payment.create(
+    {
+      phone,
+      amount,
+      trnx_id
+    }
+  );
+  res.status(200).json(payment)
 
-  payment.save()
-    .then((data) => {
-      console.log("Payment saved:", data);
-      res.status(200).json({ message: "Payment saved successfully" });
-    })
-    .catch((err) => {
-      console.log("Error saving payment:", err.message);
-      res.status(500).json({ error: "Internal server error" });
-    });
-});
+  // payment.number = phone;
+  // payment.amount = amount;
+  // payment.trnx_id = trnx_id;
+
+  // payment.save().then((data)=>{
+  //   console.log(data);
+  //   console.log('data saved')
+  // }).catch((err)=>{
+  //   console.log(err.message)
+  // })
+  
+  
+})
 
 app.get("/validation", (req, resp) => {
   console.log("Validating payment");
