@@ -59,22 +59,73 @@ app.get("/access_token", (req, res) => {
 });
 
 //MPESA STK PUSH ROUTE
+// app.post("/stkpush", (req, res) => {
+//   getAccessToken()
+//     .then((accessToken) => {
+//       const {phoneNumber,Amount} = req.body;
+      
+//       console.log(phoneNumber)
+//       // return;
+//       // const phoneNumber = 254791072861;
+//       // const Amount = 20;
+//       const url =
+//         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+//       const auth = "Bearer " + accessToken;
+//       const timestamp = moment().format("YYYYMMDDHHmmss");
+//       const password = new Buffer.from(
+//         "174379" +
+//           "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" +
+//           timestamp
+//       ).toString("base64");
+
+//       axios
+//         .post(
+//           url,
+//           {
+//             BusinessShortCode: "174379",
+//             Password: password,
+//             Timestamp: timestamp,
+//             TransactionType: "CustomerPayBillOnline",
+//             Amount: Amount,
+//             PartyA: phoneNumber,
+//             PartyB: "174379",
+//             PhoneNumber: phoneNumber,
+//             CallBackURL: "https://laundryappstk.vercel.app/callbackreq",
+//             AccountReference: "Laundro",
+//             TransactionDesc: "Laundry API stk push",
+//           },
+//           {
+//             headers: {
+//               Authorization: auth,
+//             },
+//           }
+//         )
+//         .then((response) => {
+//           res.send("😀 Request is successful done ✔✔. Please enter mpesa pin to complete the transaction");
+//           console.log(response.data.CheckoutRequestID);
+//         })
+//         .catch((error) => {
+//           console.log(error);
+//           res.status(500).send("❌ Request failed");
+//         });
+//     })
+//     .catch(console.log);
+// });
 app.post("/stkpush", (req, res) => {
   getAccessToken()
     .then((accessToken) => {
-      const {phoneNumber,Amount} = req.body;
-      console.log(phoneNumber)
-      // return;
-      // const phoneNumber = 254791072861;
-      // const Amount = 20;
+      const { phoneNumber, Amount } = req.body;
+
+      
+
       const url =
         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
       const auth = "Bearer " + accessToken;
       const timestamp = moment().format("YYYYMMDDHHmmss");
       const password = new Buffer.from(
         "174379" +
-          "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" +
-          timestamp
+        "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" +
+        timestamp
       ).toString("base64");
 
       axios
@@ -86,10 +137,10 @@ app.post("/stkpush", (req, res) => {
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
             Amount: Amount,
-            PartyA: phoneNumber,
+            PartyA: `254${phoneNumber}`,
             PartyB: "174379",
-            PhoneNumber: phoneNumber,
-            CallBackURL: "https://laundryappstk.vercel.app/callbackreq",
+            PhoneNumber: `254${phoneNumber}`,
+            CallBackURL: "https://a551-102-219-208-66.ngrok-free.app/callbackreq",
             AccountReference: "Laundro",
             TransactionDesc: "Laundry API stk push",
           },
@@ -101,7 +152,7 @@ app.post("/stkpush", (req, res) => {
         )
         .then((response) => {
           res.send("😀 Request is successful done ✔✔. Please enter mpesa pin to complete the transaction");
-          console.log(response.data.CheckoutRequestID);
+          console.log(response.data);
         })
         .catch((error) => {
           console.log(error);
@@ -110,6 +161,7 @@ app.post("/stkpush", (req, res) => {
     })
     .catch(console.log);
 });
+
 
 // REGISTER URL FOR C2B
 // app.get("/registerurl", (req, resp) => {
@@ -183,7 +235,14 @@ app.get("/confirmation", (req, res) => {
 
 
 app.post('/callbackreq',(req,res)=>{
-  console.log(req.body);
+  const callbackData = req.body;
+  console.log("callback data:",callbackData.Body)
+  if(!callbackData.Body.CallbackMetadata){
+    console.log(callbackData.Body)
+    return res.json("ok")
+  }
+
+  console.log(callbackData.Body.CallbackMetadata);
 })
 
 app.get("/validation", (req, resp) => {
