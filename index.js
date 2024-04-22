@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const Payment = require("./models/paymentModel");
 
 
-const port = 5000;
+const port = 3000;
 const hostname = "localhost";
 //const phoneNumber = 254112163919;
 //const Amount = 20;
@@ -202,6 +202,8 @@ app.post("/stkpush", (req, res) => {
 // });
 
 
+const request = require('request');
+
 app.get('/registerurl', (req, resp) => {
   getAccessToken()
     .then((accessToken) => {
@@ -213,26 +215,39 @@ app.get('/registerurl', (req, resp) => {
           url: url,
           method: "POST",
           headers: {
-            Authorization: auth
+            Authorization: auth,
+            'Content-Type': 'application/json'
           },
           json: {
             ShortCode: "174379",
             ResponseType: "Complete",
-            ConfirmationURL: "http://example.com/confirmation",
+            ConfirmationURL: "https://laundryappstk.vercel.app/confirmation",
             ValidationURL: "http://example.com/validation"
           },
         },
 
         function (error, response, body) {
           if (error) {
-            console.log(error);
+            console.error("Error registering URL:", error);
+            resp.status(500).json({ error: "Internal Server Error" });
+            return;
           }
+          if (response.statusCode !== 200) {
+            console.error("Failed to register URL. Status code:", response.statusCode);
+            resp.status(500).json({ error: "Failed to register URL" });
+            return;
+          }
+          console.log("URL registered successfully:", body);
           resp.status(200).json(body);
         }
       );
     })
-    .catch(console.log);
+    .catch((err) => {
+      console.error("Failed to get access token:", err);
+      resp.status(500).json({ error: "Failed to get access token" });
+    });
 });
+
 
 app.get("/confirmation", (req, res) => {
   console.log("All transaction will be sent to this URL");
@@ -254,7 +269,7 @@ app.post('/callbackreq', (req, res) => {
   const amount = callbackData.Body.stkCallback.CallbackMetadata.Item[0].Value;
   const trnx_id = callbackData.Body.stkCallback.CallbackMetadata.Item[3].Value;
 
-  console.log({phone,amount,trnx_id});
+  console.log({ phone, amount, trnx_id });
 
   const payment = new Payment();
 
@@ -262,14 +277,14 @@ app.post('/callbackreq', (req, res) => {
   payment.amount = amount;
   payment.trnx_id = trnx_id;
 
-  payment.save().then((data)=>{
+  payment.save().then((data) => {
     console.log(data);
     console.log('data saved')
-  }).catch((err)=>{
+  }).catch((err) => {
     console.log(err.message)
   })
-  
-  
+
+
 })
 
 app.get("/validation", (req, resp) => {
